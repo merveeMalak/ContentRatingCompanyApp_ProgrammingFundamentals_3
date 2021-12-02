@@ -2,7 +2,7 @@ package models.game;
 
 import models.Content;
 
-public class StoryGame extends Content {
+public class StoryGame extends Game {
     public StoryGame(){
         super();
         this.setContentId(2);
@@ -23,12 +23,6 @@ public class StoryGame extends Content {
     }
     @Override
     public String toString() {
-        String hour;
-        if (getDuration() == 1){
-            hour = "hour";
-        }else{
-            hour = "hours";
-        }
-        return super.toString() +  " *Duration: " + getDuration() + " " + hour ;
+        return super.toString();
     }
 }
