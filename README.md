@@ -2,13 +2,13 @@
 
 In this homework you are expected to implement a “Content Rating Company” and simulate it in Java. You should fulfill the concepts of:
 
-⚫ Interfaces
+* Interfaces
 
-⚫ Abstract Classes
+* Abstract Classes
 
-⚫ Abstract Data Types
+* Abstract Data Types
 
-⚫ CSV File I/O
+* CSV File I/O
 
 In the simulation, you are expected to build a company that rates the given games and movies and produce a rating output.
 The content that will be rated can be either a movie or a game. There are three types of games which are Indefinite Games, Story Games, Casual Games. CSV format for the contents 
