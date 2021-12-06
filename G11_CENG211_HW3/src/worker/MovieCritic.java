@@ -1,5 +1,7 @@
 package worker;
 
+import content.Movie;
+
 public class MovieCritic extends Worker {
 	
 	private double opinion;
@@ -33,10 +35,15 @@ public class MovieCritic extends Worker {
         else if (getClass() != other.getClass()){
             return false;
         }
+        else {
 		MovieCritic otherMovieCritic = (MovieCritic) other;
-        return (this.opinion==otherMovieCritic.opinion);
+        return (this.opinion==otherMovieCritic.opinion);}
 	}
 	
-	
+	public double rateContent(Movie movie) {
+		double rate = movie.getAverageRating()+((movie.getDuration()-150)*0.01)-
+					((2021-movie.getYear())*0.01)+getOpinion();
+		return rate;
+	}
 
 }

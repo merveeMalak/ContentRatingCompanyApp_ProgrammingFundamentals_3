@@ -1,6 +1,6 @@
 package worker;
 
-import content.Content;
+import content.Game;
 
 public class GameCritic extends Worker{
 	
@@ -43,12 +43,23 @@ public class GameCritic extends Worker{
         else if (getClass() != other.getClass()){
             return false;
         }
+        else {
         GameCritic otherGameCritic = (GameCritic) other;
-        return (this.shift==otherGameCritic.shift && this.opinion==otherGameCritic.opinion);
+        return (this.shift==otherGameCritic.shift && this.opinion==otherGameCritic.opinion);}
 
 	}
-
-
 	
-
+	public int rateContent(Game game) {
+		int rate = 0;
+		if (game.getContentId()==1) {
+			rate = (int) (game.getAverageRating()+((10-game.getDuration())*0.25)+getOpinion());
+		}
+		else if(game.getContentId()==2) {
+			rate = (int) (game.getAverageRating()+(game.getDuration()*0.25)+getOpinion());
+		}
+		else if(game.getContentId()==3) {
+			rate = (int) (game.getAverageRating()+((game.getDuration()-3)*3)+getOpinion());
+		}
+		return rate;
+	}
 }

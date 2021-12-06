@@ -2,8 +2,20 @@ package worker;
 
 public abstract class Worker implements IWorker {
 	
-	public Worker() {
-		
+	private int criticId;
+	
+	public Worker() {}
+	
+	public Worker(int criticId) {
+		this.criticId = criticId;
+	}
+	
+	public int getCriticId() {
+		return criticId;
+	}
+	
+	public void setCriticId(int criticId) {
+		this.criticId = criticId;
 	}
 	
 	public abstract String toString();

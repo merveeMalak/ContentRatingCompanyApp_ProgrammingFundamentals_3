@@ -3,16 +3,19 @@ package content;
 public class Movie extends Content {
 	
 	private int year;
+	private double evaluatedRate;
 
     public Movie(){
         super();
         this.year = 0;
+        this.evaluatedRate = 0.0;
         setContentId(0);
     }
 
     public Movie(int arrivalDay, int contentId, String name, int year, int duration, double averageRating){
         super(arrivalDay, contentId, name, duration, averageRating);
         this.year = year;
+        this.evaluatedRate = 0.0;
     }
 /*
     public Movie(Movie movie){
@@ -22,6 +25,14 @@ public class Movie extends Content {
     public int getYear() {
         return year;
     }
+    
+    public double getEvaluatedRate() {
+    	return evaluatedRate;
+    }
+    
+    public void setEvaluatedRate(double evaluatedRate) {
+    	this.evaluatedRate = evaluatedRate;
+    }
 
     @Override
     public double calculateCritic(int criticOption) {
@@ -29,7 +40,7 @@ public class Movie extends Content {
     }
     @Override
     public String toString() {
-        return super.toString() +  " *Duration: " + getDuration() + " minutes" + " *Year: " + getYear();
+        return super.toString() +  " *Duration: " + getDuration() + " minutes" + " *Year: " + getYear() + "*Evaluated Rate: "+getEvaluatedRate();
     }
 
     public boolean equals(Object other){
@@ -45,7 +56,8 @@ public class Movie extends Content {
                 getName().equals(otherMovie.getName()) &&
                 getYear() == otherMovie.getYear() &&
                 getDuration() == otherMovie.getDuration() &&
-                getAverageRating() == otherMovie.getAverageRating());
+                getAverageRating() == otherMovie.getAverageRating() &&
+        		getEvaluatedRate() == otherMovie.getEvaluatedRate());
     }
 
 }

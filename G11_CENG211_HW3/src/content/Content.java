@@ -59,12 +59,13 @@ public abstract class Content implements IContent {
         else if (getClass() != other.getClass()){
             return false;
         }
+        else {
         Content otherContent = (Content) other;
         return ((this.arrivalDay == otherContent.arrivalDay) &&
                 (this.contentId == otherContent.contentId) &&
                 (this.name.equals(otherContent.name)) &&
                 (this.duration == otherContent.duration) &&
-                (this.averageRating == otherContent.averageRating));
+                (this.averageRating == otherContent.averageRating));}
     }
 
     public abstract double calculateCritic(int criticOption);
