@@ -19,6 +19,23 @@ public class MovieCritic extends Worker {
 	public void setOpinion(double opinion) {
 		this.opinion = opinion;
 	}
+
+	@Override
+	public String toString() {
+		return "Opinion: "+getOpinion();
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other == null){
+            return false;
+        }
+        else if (getClass() != other.getClass()){
+            return false;
+        }
+		MovieCritic otherMovieCritic = (MovieCritic) other;
+        return (this.opinion==otherMovieCritic.opinion);
+	}
 	
 	
 

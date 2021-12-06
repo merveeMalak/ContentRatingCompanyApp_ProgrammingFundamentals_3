@@ -1,5 +1,7 @@
 package worker;
 
+import content.Content;
+
 public class GameCritic extends Worker{
 	
 	private int shift;
@@ -30,9 +32,21 @@ public class GameCritic extends Worker{
 		this.opinion = opinion;
 	}
 	
+	public String toString() {
+		return "Shift: "+getShift()+"Opinion: "+getOpinion();
+	}
 	
+	public boolean equals(Object other){
+        if (other == null){
+            return false;
+        }
+        else if (getClass() != other.getClass()){
+            return false;
+        }
+        GameCritic otherGameCritic = (GameCritic) other;
+        return (this.shift==otherGameCritic.shift && this.opinion==otherGameCritic.opinion);
 
-
+	}
 
 
 	
