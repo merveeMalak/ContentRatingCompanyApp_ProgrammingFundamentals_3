@@ -41,9 +41,7 @@ public class MovieCritic extends Worker {
 	}
 	
 	public double rateContent(Movie movie) {
-		double rate = movie.getAverageRating()+((movie.getDuration()-150)*0.01)-
-					((2021-movie.getYear())*0.01)+getOpinion();
-		return rate;
+		return movie.calculateCritic(this.opinion);
 	}
 
 }

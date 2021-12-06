@@ -50,16 +50,7 @@ public class GameCritic extends Worker{
 	}
 	
 	public int rateContent(Game game) {
-		int rate = 0;
-		if (game.getContentId()==1) {
-			rate = (int) (game.getAverageRating()+((10-game.getDuration())*0.25)+getOpinion());
-		}
-		else if(game.getContentId()==2) {
-			rate = (int) (game.getAverageRating()+(game.getDuration()*0.25)+getOpinion());
-		}
-		else if(game.getContentId()==3) {
-			rate = (int) (game.getAverageRating()+((game.getDuration()-3)*3)+getOpinion());
-		}
-		return rate;
+		return (int)(game.calculateCritic(this.opinion));
+		
 	}
 }
