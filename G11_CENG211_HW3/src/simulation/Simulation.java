@@ -119,6 +119,7 @@ public class Simulation implements ISimulation {
     public void simulateFiveDays() {
         createCriticQueues();
         for(int i=1; i<6; i++) {
+            System.out.println(i + ". day:");
             updateStacks(i);
             evaluateMovies();
 
