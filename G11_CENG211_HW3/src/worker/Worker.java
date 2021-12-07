@@ -3,9 +3,10 @@ package worker;
 public abstract class Worker implements IWorker {
 
     private int criticId;
-    private double opinion;
 
-    public Worker() {}
+    public Worker() {
+        this(0);
+    }
 
     public Worker(int criticId) {
         this.criticId = criticId;

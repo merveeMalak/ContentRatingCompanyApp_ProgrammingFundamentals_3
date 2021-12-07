@@ -1,10 +1,14 @@
 package simulation;
 
 import FileIO.FileIO;
-import models.game.Game;
-import models.movie.Movie;
-import worker.GameCritic;
-import worker.MovieCritic;
+import content.game.CasualGame;
+import content.game.IGame;
+import content.game.IndefiniteGame;
+import content.movie.IMovie;
+import worker.game_critic.GameCritic;
+import worker.game_critic.IGameCritic;
+import worker.movie_critic.IMovieCritic;
+import worker.movie_critic.MovieCritic;
 
 import java.util.*;
 
@@ -15,24 +19,24 @@ public class Simulation implements ISimulation {
     }
 
     //empty stacks for contents are created
-    Stack<Game> gameStack = new Stack<Game>();
-    Stack<Movie> movieStack = new Stack<Movie>();
+    Stack<IGame> gameStack = new Stack<IGame>();
+    Stack<IMovie> movieStack = new Stack<IMovie>();
 
     //empty queues for critics are created
-    Queue<GameCritic> gameCriticQueue = new LinkedList<>();
-    Queue<MovieCritic> movieCriticQueue = new LinkedList<>();
+    Queue<IGameCritic> gameCriticQueue = new LinkedList<>();
+    Queue<IMovieCritic> movieCriticQueue = new LinkedList<>();
 
     //empty linked lists are created for the evaluated content
-    List<Movie> evaluatedMovies = new LinkedList<>();
-    List<Game> evaluatedGames = new LinkedList<>();
+    List<IMovie> evaluatedMovies = new LinkedList<>();
+    List<IGame> evaluatedGames = new LinkedList<>();
 
     //creates game and movie critics and adds them to related queues
     public void createCriticQueues() {
 
         //movie critics are created
-        MovieCritic movieCritic1 = new MovieCritic(0.1);
-        MovieCritic movieCritic2 = new MovieCritic(-0.2);
-        MovieCritic movieCritic3 = new MovieCritic(0.3);
+        IMovieCritic movieCritic1 = new MovieCritic(1,0.1);
+        IMovieCritic movieCritic2 = new MovieCritic(2,-0.2);
+        IMovieCritic movieCritic3 = new MovieCritic(3, 0.3);
 
         //movie critics are added to the movie critic queue
         movieCriticQueue.add(movieCritic1);
@@ -40,11 +44,11 @@ public class Simulation implements ISimulation {
         movieCriticQueue.add(movieCritic3);
 
         //game critics are created
-        GameCritic gameCritic1 = new GameCritic(8,5);
-        GameCritic gameCritic2 = new GameCritic(8,9);
-        GameCritic gameCritic3 = new GameCritic(8,-3);
-        GameCritic gameCritic4 = new GameCritic(8,2);
-        GameCritic gameCritic5 = new GameCritic(8,-7);
+        IGameCritic gameCritic1 = new GameCritic(1,8,5);
+        IGameCritic gameCritic2 = new GameCritic(2,8,9);
+        IGameCritic gameCritic3 = new GameCritic(3,8,-3);
+        IGameCritic gameCritic4 = new GameCritic(4,8,2);
+        IGameCritic gameCritic5 = new GameCritic(5,8,-7);
 
         //game critics are added to game critic queue
         gameCriticQueue.add(gameCritic1);
@@ -61,19 +65,10 @@ public class Simulation implements ISimulation {
 
         FileIO file = new FileIO();
 
-        List<Movie> movieList = file.getMovieArrayList();
-        for (Movie movie: movieList) {
-            if (movie.getArrivalDay() == dayNumber) {
-                movieStack.add(movie);
-            }
-        }
+        movieStack = file.getIndexDayOfMovie(dayNumber);
 
-        List<Game> gameList = file.getGameArrayList();
-        for (Game game: gameList) {
-            if (game.getArrivalDay() == dayNumber) {
-                gameStack.add(game);
-            }
-        }
+        gameStack = file.getIndexOfDayGame(dayNumber);
+
 
     }
 
@@ -83,28 +78,48 @@ public class Simulation implements ISimulation {
         for(int x = 0; x<movieCriticQueue.size(); x++) {
 
             if (!(movieStack.isEmpty())) {
-                Movie movieToRate = movieStack.pop();
-                MovieCritic movieCriticToRate = movieCriticQueue.poll();
+                IMovie movieToRate = movieStack.pop();
+                IMovieCritic movieCriticToRate = movieCriticQueue.poll();
                 double evaluatedRate = movieCriticToRate.rateContent(movieToRate);
                 movieToRate.setEvaluatedRate(evaluatedRate);
                 evaluatedMovies.add(movieToRate);
                 movieCriticQueue.add(movieCriticToRate);
-                System.out.println();
+                System.out.println(movieCriticToRate.getCriticId() + ". movie critic evaluated " + movieToRate.getName());
             }
             else {break;}
         }
     }
 
     public void evaluateGames() {
+        for (int i = 0; i < gameCriticQueue.size(); i++){
+            if (!(gameStack.empty())){
+                IGame gameToRate = gameStack.pop();
+                IGameCritic gameCriticToRate = gameCriticQueue.poll();
+                int totalShift = 0;
+                if (gameToRate instanceof CasualGame){
 
+                }
+                else if (gameToRate instanceof IndefiniteGame){
+                    int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
+                    gameToRate.setEvaluatedRate(evaluatedRate);
+                    evaluatedGames.add(gameToRate);
+                    totalShift += 4;
+                    gameCriticQueue.add(gameCriticToRate);
+                }
+                else{
+
+                }
+
+            }
+        }
     }
 
     //createCriticQueues();
     //updateStacks(1); -----> do not forget!!!
     public void simulateFiveDays() {
-
+        createCriticQueues();
         for(int i=1; i<6; i++) {
-
+            updateStacks(i);
             evaluateMovies();
 
         }
