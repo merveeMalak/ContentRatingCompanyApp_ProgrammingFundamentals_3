@@ -73,6 +73,8 @@ public class Simulation implements ISimulation {
 
     }
 
+    //assigns movies at the stack to the critics at the queue
+    //critics evaluates the movies
     public void evaluateMovies() {
 
         for(int x = 0; x<movieCriticQueue.size(); x++) {
@@ -90,14 +92,18 @@ public class Simulation implements ISimulation {
         }
     }
     
+    //lists for unfinished evaluations: critics who will continue the other day and the games they are evaluating
     List<IGameCritic> gameCriticsInProgress = new LinkedList<>();
     List<IGame> gamesInProgress = new LinkedList<>();
     
+    //list of critics who reached the maximum number of hours to work
     List<IGameCritic> gameCriticsEndedShifts = new LinkedList<>();
     
+    //lists of evaluated games and critic id's belonging the day at hand
     List<IGame> dailyEvaluatedGames = new LinkedList<>();
     List<Integer> dailyEvaluatedCritics = new LinkedList<>();
     
+    //if evaluation is done, finishes up the necessary steps
     public void organizeEvaluations(boolean evaluationStatus,IGame gameToRate, IGameCritic gameCriticToRate) {
     	
     	if (evaluationStatus==true) {
@@ -106,6 +112,8 @@ public class Simulation implements ISimulation {
     		evaluatedGames.add(gameToRate);
     	}
     }
+    
+    //redirects critics to proper places according to their shifts
     public void redirectCritics(int isShiftEnded, IGame gameToRate, IGameCritic gameCriticToRate) {
     	
     	System.out.println(dailyEvaluatedCritics);
@@ -113,11 +121,11 @@ public class Simulation implements ISimulation {
 		//System.out.println(gameCriticsInProgress);
     	
     	switch (isShiftEnded) {
-    	case 0:
+    	case 0://still has hours to work
     		gameCriticQueue.add(gameCriticToRate);
-    	case 1:
+    	case 1://critic's shift is ended
     		gameCriticsEndedShifts.add(gameCriticToRate);
-    	case 2:
+    	case 2://will continue the same work the other day
     		gameCriticsInProgress.add(gameCriticToRate);
     		gamesInProgress.add(gameToRate);
     	}
@@ -126,6 +134,8 @@ public class Simulation implements ISimulation {
 		//System.out.println(gameCriticsInProgress);
     }
     
+    //evaluates casual games, evaluatinStatus==true means evaluation is done
+    //isShift ended refers to shift status of the critic
     public void evaluateCasualGame(IGame gameToRate,IGameCritic gameCriticToRate) {
     	
 		boolean evaluationStatus = false;
@@ -140,15 +150,16 @@ public class Simulation implements ISimulation {
         			break;
         		}
         	}
-        	else if (gameCriticToRate.getShift() == gameToRate.getDuration()) {
-        		if(i==3) {
+        	else if (gameCriticToRate.getShift() == gameToRate.getDuration()) {	
+        		switch(i) {
+        		case 3:
         			equalCriticShift(gameCriticToRate, gameToRate);
         			evaluationStatus=true;
         			isShiftEnded = 1;
         			break;
-        		}
-        		else {
-            		insufficienCriticShift(gameCriticToRate, gameToRate, (gameToRate.getDuration()*(3-i)));
+        			
+        		default: 
+        			insufficienCriticShift(gameCriticToRate, gameToRate, (gameToRate.getDuration()*(3-i)));
             		isShiftEnded = 2;
             		break;
         		}
@@ -163,6 +174,7 @@ public class Simulation implements ISimulation {
     	organizeEvaluations(evaluationStatus,gameToRate,gameCriticToRate);
     }
     
+    //evaluates indefinite games
     public void evaluateIndefiniteGame(IGame gameToRate,IGameCritic gameCriticToRate) {
     	
 		boolean evaluationStatus = false;
@@ -187,6 +199,7 @@ public class Simulation implements ISimulation {
 
     }
     
+    //evaluates story games
     public void evaluateStoryGame(IGame gameToRate,IGameCritic gameCriticToRate) {
     	
 		boolean evaluationStatus = false;
@@ -210,6 +223,7 @@ public class Simulation implements ISimulation {
     	organizeEvaluations(evaluationStatus,gameToRate,gameCriticToRate);
     }
 
+    //if there are any games to rate and available critics, assigns the games to critics
     public void evaluateNewGames() {
         for (int i=0; i<gameCriticQueue.size();i++) {
         	
@@ -233,6 +247,7 @@ public class Simulation implements ISimulation {
         }
     }
     
+    //prints evaluated games of the day and clears the daily lists after
     public void printDailyEvaluatedGames() {
 
     	for (int i=0; i<dailyEvaluatedGames.size();i++) {
@@ -243,6 +258,7 @@ public class Simulation implements ISimulation {
 		dailyEvaluatedGames.clear();
     }
     
+    //resets shifts of the critics for the new day
     public void resetShifts() {
     	
     	for(int i=0; i<gameCriticsInProgress.size(); i++) {
@@ -262,6 +278,7 @@ public class Simulation implements ISimulation {
 		
     }
     
+    //makes critics continue their evaluations from where they left of
     public void continueEvaluatingGames() {
     	
     	for (int i=0; i<gamesInProgress.size();i++) {
@@ -293,20 +310,27 @@ public class Simulation implements ISimulation {
     	}
     	
     }
+    
+    //makes necessary arrangements if the critic has more than enough time for the job at hand
     public void sufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
     	gameCriticToRate.setShift(gameCriticToRate.getShift()-duration);
 		int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
 		gameToRate.setEvaluatedRate(evaluatedRate);
     }
+    
+    //makes necessary arrangements if the critic has just enough time for the job at hand
     public void equalCriticShift(IGameCritic gameCriticToRate, IGame gameToRate) {
 		int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
 		gameToRate.setEvaluatedRate(evaluatedRate);
     }
+    
+    //makes necessary arrangements if the critic hasn't got enough time for the job at hand
     public void insufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
     	gameCriticToRate.setShift(gameCriticToRate.getShift()-duration);
 		
     }
     
+    //calls needed methods in the needed order to simulate 5 days of the company
     public void simulateFiveDays() {
         createCriticQueues();
         for(int i=1; i<6; i++) {
