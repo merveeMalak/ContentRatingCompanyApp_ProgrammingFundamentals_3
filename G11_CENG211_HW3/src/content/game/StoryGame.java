@@ -1,9 +1,8 @@
 package content.game;
 
-
 public class StoryGame extends Game {
-
-    //default constructor
+	
+	//default constructor
     public StoryGame(){
         super();
         this.setContentId(2);

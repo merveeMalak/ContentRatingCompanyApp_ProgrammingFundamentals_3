@@ -1,13 +1,14 @@
 package content;
 
 public interface IContent {
+	
+	 public int getArrivalDay();
 
-    public int getArrivalDay();
+	 public int getContentId();
 
-    public int getContentId();
+	 public String getName();
 
-    public String getName();
+	 public int getDuration();
 
-    public int getDuration();
 
 }

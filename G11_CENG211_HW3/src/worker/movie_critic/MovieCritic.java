@@ -3,10 +3,9 @@ package worker.movie_critic;
 import content.movie.IMovie;
 import worker.Worker;
 
-
 public class MovieCritic extends Worker implements IMovieCritic {
-
-    private double opinion;
+	
+	private double opinion;
 
     public MovieCritic(int criticId,double opinion) {
         super(criticId);

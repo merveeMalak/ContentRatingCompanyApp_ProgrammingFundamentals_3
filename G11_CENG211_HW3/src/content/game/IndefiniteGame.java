@@ -1,8 +1,8 @@
 package content.game;
 
 public class IndefiniteGame extends Game {
-
-    //default constructor
+	
+	//default constructor
     public IndefiniteGame(){
         super();
         this.setContentId(1);
@@ -37,4 +37,5 @@ public class IndefiniteGame extends Game {
     public boolean equals(Object other){
         return super.equals(other);
     }
+
 }

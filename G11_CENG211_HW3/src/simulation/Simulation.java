@@ -1,20 +1,21 @@
 package simulation;
 
-import FileIO.FileIO;
-import content.game.CasualGame;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Stack;
+
 import content.game.IGame;
-import content.game.IndefiniteGame;
 import content.movie.IMovie;
+import fileIO.FileIO;
 import worker.game_critic.GameCritic;
 import worker.game_critic.IGameCritic;
 import worker.movie_critic.IMovieCritic;
 import worker.movie_critic.MovieCritic;
 
-import java.util.*;
-
 public class Simulation implements ISimulation {
-
-    public Simulation() {
+	
+	public Simulation() {
 
     }
 
@@ -72,7 +73,6 @@ public class Simulation implements ISimulation {
 
     }
 
-    //add prints
     public void evaluateMovies() {
 
         for(int x = 0; x<movieCriticQueue.size(); x++) {
@@ -89,44 +89,236 @@ public class Simulation implements ISimulation {
             else {break;}
         }
     }
+    
+    List<IGameCritic> gameCriticsInProgress = new LinkedList<>();
+    List<IGame> gamesInProgress = new LinkedList<>();
+    
+    List<IGameCritic> gameCriticsEndedShifts = new LinkedList<>();
+    
+    List<IGame> dailyEvaluatedGames = new LinkedList<>();
+    List<Integer> dailyEvaluatedCritics = new LinkedList<>();
+    
+    public void organizeEvaluations(boolean evaluationStatus,IGame gameToRate, IGameCritic gameCriticToRate) {
+    	
+    	if (evaluationStatus==true) {
+    		dailyEvaluatedGames.add(gameToRate);
+    		dailyEvaluatedCritics.add(gameCriticToRate.getCriticId());
+    		evaluatedGames.add(gameToRate);
+    	}
+    }
+    public void redirectCritics(int isShiftEnded, IGame gameToRate, IGameCritic gameCriticToRate) {
+    	
+    	System.out.println(dailyEvaluatedCritics);
+		//System.out.println(gameCriticsEndedShifts);
+		//System.out.println(gameCriticsInProgress);
+    	
+    	switch (isShiftEnded) {
+    	case 0:
+    		gameCriticQueue.add(gameCriticToRate);
+    	case 1:
+    		gameCriticsEndedShifts.add(gameCriticToRate);
+    	case 2:
+    		gameCriticsInProgress.add(gameCriticToRate);
+    		gamesInProgress.add(gameToRate);
+    	}
+		System.out.println(dailyEvaluatedCritics);
+		//System.out.println(gameCriticsEndedShifts);
+		//System.out.println(gameCriticsInProgress);
+    }
+    
+    public void evaluateCasualGame(IGame gameToRate,IGameCritic gameCriticToRate) {
+    	
+		boolean evaluationStatus = false;
+		int isShiftEnded = 0;
 
-    public void evaluateGames() {
-        for (int i = 0; i < gameCriticQueue.size(); i++){
-            if (!(gameStack.empty())){
-                IGame gameToRate = gameStack.pop();
-                IGameCritic gameCriticToRate = gameCriticQueue.poll();
-                int totalShift = 0;
-                if (gameToRate instanceof CasualGame){
+    	for(int i=1; i<4;i++) {
+    	    		
+    		if(gameCriticToRate.getShift()>gameToRate.getDuration()) {
+        		sufficienCriticShift(gameCriticToRate, gameToRate, gameToRate.getDuration());
+        		if(i==3) {
+        			evaluationStatus = true;
+        			break;
+        		}
+        	}
+        	else if (gameCriticToRate.getShift() == gameToRate.getDuration()) {
+        		if(i==3) {
+        			equalCriticShift(gameCriticToRate, gameToRate);
+        			evaluationStatus=true;
+        			isShiftEnded = 1;
+        			break;
+        		}
+        		else {
+            		insufficienCriticShift(gameCriticToRate, gameToRate, (gameToRate.getDuration()*(3-i)));
+            		isShiftEnded = 2;
+            		break;
+        		}
+        	}
+        	else {
+        		insufficienCriticShift(gameCriticToRate, gameToRate, (gameToRate.getDuration()*(4-i)));
+    			isShiftEnded = 2;
+    			break;
+        	}
+    	}   	
+    	redirectCritics(isShiftEnded,gameToRate,gameCriticToRate);
+    	organizeEvaluations(evaluationStatus,gameToRate,gameCriticToRate);
+    }
+    
+    public void evaluateIndefiniteGame(IGame gameToRate,IGameCritic gameCriticToRate) {
+    	
+		boolean evaluationStatus = false;
+		int isShiftEnded = 0;
 
-                }
-                else if (gameToRate instanceof IndefiniteGame){
-                    int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
-                    gameToRate.setEvaluatedRate(evaluatedRate);
-                    evaluatedGames.add(gameToRate);
-                    totalShift += 4;
-                    gameCriticQueue.add(gameCriticToRate);
-                }
-                else{
+    	if (gameCriticToRate.getShift()>4) {    		
+    		sufficienCriticShift(gameCriticToRate, gameToRate, 4);  
+    		evaluationStatus = true;
+    	}
+    	else if (gameCriticToRate.getShift() == 4) {
+    		equalCriticShift(gameCriticToRate, gameToRate);
+    		evaluationStatus = true;
+    		isShiftEnded = 1;
+    	}
+    	else {
+    		insufficienCriticShift(gameCriticToRate, gameToRate, 4);
+    		isShiftEnded = 2;
+    	}
+    	
+    	redirectCritics(isShiftEnded,gameToRate,gameCriticToRate);
+    	organizeEvaluations(evaluationStatus,gameToRate,gameCriticToRate);
 
-                }
-
-            }
-        }
+    }
+    
+    public void evaluateStoryGame(IGame gameToRate,IGameCritic gameCriticToRate) {
+    	
+		boolean evaluationStatus = false;
+		int isShiftEnded = 0;
+  	
+    	if(gameCriticToRate.getShift()>gameToRate.getDuration()) {
+    		sufficienCriticShift(gameCriticToRate, gameToRate, gameToRate.getDuration());
+    		evaluationStatus = true;
+    	}
+    	else if (gameCriticToRate.getShift() == gameToRate.getDuration()) {
+    		equalCriticShift(gameCriticToRate, gameToRate);	
+    		evaluationStatus = true;
+    		isShiftEnded = 1;
+    	}
+    	else {
+    		insufficienCriticShift(gameCriticToRate, gameToRate, gameToRate.getDuration());
+    		isShiftEnded = 2;
+    	}
+    	
+    	redirectCritics(isShiftEnded,gameToRate,gameCriticToRate);
+    	organizeEvaluations(evaluationStatus,gameToRate,gameCriticToRate);
     }
 
-    //createCriticQueues();
-    //updateStacks(1); -----> do not forget!!!
+    public void evaluateNewGames() {
+        for (int i=0; i<gameCriticQueue.size();i++) {
+        	
+        	if(!(gameCriticQueue.isEmpty())) {
+        		
+        		IGameCritic gameCriticToRate = gameCriticQueue.poll();
+        		IGame gameToRate = gameStack.pop();
+        		
+        		System.out.println(gameCriticToRate.getCriticId()+". game critic works on "+gameToRate.getName());
+        		
+            	switch (gameToRate.getContentId()) {
+            	case 1:
+            		evaluateIndefiniteGame(gameToRate, gameCriticToRate);
+            	case 2:
+            		evaluateStoryGame(gameToRate, gameCriticToRate);
+            	case 3:
+            		evaluateCasualGame(gameToRate, gameCriticToRate);
+        	}
+            	}
+        	else {break;}
+        }
+    }
+    
+    public void printDailyEvaluatedGames() {
+
+    	for (int i=0; i<dailyEvaluatedGames.size();i++) {
+    		int criticId = dailyEvaluatedCritics.get(i);
+    		System.out.println(criticId+". game critic evaluated "+dailyEvaluatedGames.get(i).getName());
+    	}
+    	dailyEvaluatedCritics.clear();
+		dailyEvaluatedGames.clear();
+    }
+    
+    public void resetShifts() {
+    	
+    	for(int i=0; i<gameCriticsInProgress.size(); i++) {
+    		gameCriticsInProgress.get(i).setShift(gameCriticsInProgress.get(i).getShift()+8);
+    	}
+    	for (int i=0;i<gameCriticsEndedShifts.size();i++) {
+    		gameCriticQueue.add(gameCriticsEndedShifts.get(i));
+    	}
+    	List<IGameCritic> tempGameCritic = new LinkedList<>();
+		while (!(gameCriticQueue.isEmpty())) {
+			tempGameCritic.add(gameCriticQueue.poll());
+		}
+		for (int i = 0; i<tempGameCritic.size();i++) {
+			tempGameCritic.get(i).setShift(8);
+			gameCriticQueue.add(tempGameCritic.get(i));
+		}
+		
+    }
+    
+    public void continueEvaluatingGames() {
+    	
+    	for (int i=0; i<gamesInProgress.size();i++) {
+    		IGame gameToRate = gamesInProgress.get(0);
+    		gamesInProgress.remove(0);
+    		IGameCritic gameCriticToRate = gameCriticsInProgress.get(0);
+    		gameCriticsInProgress.remove(0);
+    	    		
+    		boolean evaluationStatus = false;
+    		int isShiftEnded = 0;
+    		
+    		if (gameCriticToRate.getShift()>0) {
+        		sufficienCriticShift(gameCriticToRate,gameToRate,0);
+        		evaluationStatus = true;
+    		}
+    		else if (gameCriticToRate.getShift()==0) {
+    			equalCriticShift(gameCriticToRate,gameToRate);
+        		evaluationStatus = true;
+        		isShiftEnded = 1;
+    		}
+    		else {
+    			insufficienCriticShift(gameCriticToRate,gameToRate,0);
+    			isShiftEnded = 2;
+    		}		
+    		redirectCritics(isShiftEnded,gameToRate,gameCriticToRate);
+        	organizeEvaluations(evaluationStatus,gameToRate,gameCriticToRate);
+    		System.out.println(gameCriticToRate.getCriticId()+". game critic works on "+gameToRate.getName());
+
+    	}
+    	
+    }
+    public void sufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
+    	gameCriticToRate.setShift(gameCriticToRate.getShift()-duration);
+		int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
+		gameToRate.setEvaluatedRate(evaluatedRate);
+    }
+    public void equalCriticShift(IGameCritic gameCriticToRate, IGame gameToRate) {
+		int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
+		gameToRate.setEvaluatedRate(evaluatedRate);
+    }
+    public void insufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
+    	gameCriticToRate.setShift(gameCriticToRate.getShift()-duration);
+		
+    }
+    
     public void simulateFiveDays() {
         createCriticQueues();
         for(int i=1; i<6; i++) {
-            System.out.println(i + ". day:");
+        	System.out.println(i + ". day:");
             updateStacks(i);
             evaluateMovies();
-
+            continueEvaluatingGames();
+            evaluateNewGames();
+            printDailyEvaluatedGames();
+            resetShifts();
         }
     }
-
-
 
 
 }

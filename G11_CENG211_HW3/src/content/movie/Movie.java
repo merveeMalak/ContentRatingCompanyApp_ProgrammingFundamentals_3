@@ -2,9 +2,9 @@ package content.movie;
 
 import content.Content;
 
-public class Movie extends Content implements IMovie{
-
-    private int year;    //holds year as a int
+public class Movie extends Content implements IMovie {
+	
+	private int year;    //holds year as a int
     private double averageRating;   //holds averageRating as a double
     private double evaluateRate;    //holds evaluateRate as a double
 
@@ -79,5 +79,4 @@ public class Movie extends Content implements IMovie{
                 this.averageRating == otherMovie.averageRating &&
                 this.evaluateRate == otherMovie.evaluateRate);
     }
-
 }

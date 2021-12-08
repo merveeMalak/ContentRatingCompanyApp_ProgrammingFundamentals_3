@@ -1,8 +1,8 @@
 package content.game;
 
 public class CasualGame extends Game {
-
-    //default constructor
+	
+	//default constructor
     public CasualGame(){
         super();
         this.setContentId(3);
@@ -26,7 +26,7 @@ public class CasualGame extends Game {
 
     @Override
     public int calculateCritic(int criticOption) {
-        return getAverageRating() + ((getDuration() - 3) * 3) + criticOption;
+        return (int) (getAverageRating() + ((getDuration() - 3) * 3) + criticOption);
     }
 
 
@@ -38,5 +38,6 @@ public class CasualGame extends Game {
     public boolean equals(Object other){
         return super.equals(other);
     }
+
 
 }

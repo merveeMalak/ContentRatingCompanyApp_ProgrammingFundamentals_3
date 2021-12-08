@@ -1,8 +1,8 @@
 package content;
 
 public abstract class Content implements IContent {
-
-    private int arrivalDay;  //holds arrivalDay as a int
+	
+	private int arrivalDay;  //holds arrivalDay as a int
     private int contentId;   //holds contentId as a int
     private String name;     //holds name as a String
     private int duration;    //holds duration as a int
@@ -64,6 +64,5 @@ public abstract class Content implements IContent {
                     (this.averageRating == otherContent.averageRating));}
     }
 */
-
 
 }

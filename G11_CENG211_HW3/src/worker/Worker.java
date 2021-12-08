@@ -1,8 +1,8 @@
 package worker;
 
 public abstract class Worker implements IWorker {
-
-    private int criticId;
+	
+	private int criticId;
 
     public Worker() {
         this(0);
@@ -23,5 +23,4 @@ public abstract class Worker implements IWorker {
     public abstract String toString();
 
     public abstract boolean equals(Object other);
-
 }
