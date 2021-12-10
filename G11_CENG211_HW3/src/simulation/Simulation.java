@@ -7,6 +7,7 @@ import java.util.Stack;
 
 import content.game.IGame;
 import content.movie.IMovie;
+import content.movie.Movie;
 import fileIO.FileIO;
 import worker.game_critic.GameCritic;
 import worker.game_critic.IGameCritic;
@@ -104,7 +105,7 @@ public class Simulation implements ISimulation {
     List<Integer> dailyEvaluatedCritics = new LinkedList<>();
     
     //if evaluation is done, finishes up the necessary steps
-    public void organizeEvaluations(boolean evaluationStatus,IGame gameToRate, IGameCritic gameCriticToRate) {
+    private void organizeEvaluations(boolean evaluationStatus,IGame gameToRate, IGameCritic gameCriticToRate) {
     	
     	if (evaluationStatus==true) {
     		dailyEvaluatedGames.add(gameToRate);
@@ -114,7 +115,7 @@ public class Simulation implements ISimulation {
     }
     
     //redirects critics to proper places according to their shifts
-    public void redirectCritics(int isShiftEnded, IGame gameToRate, IGameCritic gameCriticToRate) {
+    private void redirectCritics(int isShiftEnded, IGame gameToRate, IGameCritic gameCriticToRate) {
     	
     	System.out.println(dailyEvaluatedCritics);
 		//System.out.println(gameCriticsEndedShifts);
@@ -136,7 +137,7 @@ public class Simulation implements ISimulation {
     
     //evaluates casual games, evaluatinStatus==true means evaluation is done
     //isShift ended refers to shift status of the critic
-    public void evaluateCasualGame(IGame gameToRate,IGameCritic gameCriticToRate) {
+    private void evaluateCasualGame(IGame gameToRate,IGameCritic gameCriticToRate) {
     	
 		boolean evaluationStatus = false;
 		int isShiftEnded = 0;
@@ -175,7 +176,7 @@ public class Simulation implements ISimulation {
     }
     
     //evaluates indefinite games
-    public void evaluateIndefiniteGame(IGame gameToRate,IGameCritic gameCriticToRate) {
+    private void evaluateIndefiniteGame(IGame gameToRate,IGameCritic gameCriticToRate) {
     	
 		boolean evaluationStatus = false;
 		int isShiftEnded = 0;
@@ -200,7 +201,7 @@ public class Simulation implements ISimulation {
     }
     
     //evaluates story games
-    public void evaluateStoryGame(IGame gameToRate,IGameCritic gameCriticToRate) {
+    private void evaluateStoryGame(IGame gameToRate,IGameCritic gameCriticToRate) {
     	
 		boolean evaluationStatus = false;
 		int isShiftEnded = 0;
@@ -312,20 +313,20 @@ public class Simulation implements ISimulation {
     }
     
     //makes necessary arrangements if the critic has more than enough time for the job at hand
-    public void sufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
+    private void sufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
     	gameCriticToRate.setShift(gameCriticToRate.getShift()-duration);
 		int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
 		gameToRate.setEvaluatedRate(evaluatedRate);
     }
     
     //makes necessary arrangements if the critic has just enough time for the job at hand
-    public void equalCriticShift(IGameCritic gameCriticToRate, IGame gameToRate) {
+    private void equalCriticShift(IGameCritic gameCriticToRate, IGame gameToRate) {
 		int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
 		gameToRate.setEvaluatedRate(evaluatedRate);
     }
     
     //makes necessary arrangements if the critic hasn't got enough time for the job at hand
-    public void insufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
+    private void insufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
     	gameCriticToRate.setShift(gameCriticToRate.getShift()-duration);
 		
     }
@@ -342,6 +343,26 @@ public class Simulation implements ISimulation {
             printDailyEvaluatedGames();
             resetShifts();
         }
+    }
+    
+	//prints evaluated movies,games and their ratings
+    public void printRatings() {
+    	System.out.println("Ratings:");
+    	printMovieRatings();
+    	printGameRatings();
+    }
+    
+    private void printMovieRatings() {
+    	for(int i=0; i<evaluatedMovies.size(); i++) {
+    		Movie movie = (Movie) evaluatedMovies.get(i);
+    		System.out.println(movie.getName()+" ("+movie.getYear()+"), "+movie.getEvaluateRate());
+    	}
+    }
+    
+    private void printGameRatings() {
+    	for(int i=0; i<evaluatedGames.size(); i++) {
+    		System.out.println(evaluatedGames.get(i).getName()+", "+evaluatedGames.get(i).getEvaluateRate());
+    	}
     }
 
 

@@ -9,7 +9,8 @@ public class ContentRatingCompanyApp {
 		
 		ISimulation simulation = new Simulation();
         simulation.simulateFiveDays();
-		
+		simulation.printRatings();
+
 	}
 
 }
