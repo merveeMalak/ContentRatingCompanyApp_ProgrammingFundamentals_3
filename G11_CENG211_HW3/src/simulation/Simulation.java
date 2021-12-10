@@ -227,7 +227,7 @@ public class Simulation implements ISimulation {
     public void evaluateNewGames() {
         for (int i=0; i<gameCriticQueue.size();i++) {
         	
-        	if(!(gameCriticQueue.isEmpty())) {
+        	if(!(gameStack.isEmpty())) { //changed
         		
         		IGameCritic gameCriticToRate = gameCriticQueue.poll();
         		IGame gameToRate = gameStack.pop();
@@ -283,9 +283,9 @@ public class Simulation implements ISimulation {
     	
     	for (int i=0; i<gamesInProgress.size();i++) {
     		IGame gameToRate = gamesInProgress.get(0);
-    		gamesInProgress.remove(0);
+    		gamesInProgress.remove(0); //must be changed
     		IGameCritic gameCriticToRate = gameCriticsInProgress.get(0);
-    		gameCriticsInProgress.remove(0);
+    		gameCriticsInProgress.remove(0);  //must be changed
     	    		
     		boolean evaluationStatus = false;
     		int isShiftEnded = 0;
