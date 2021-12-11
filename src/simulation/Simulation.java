@@ -359,6 +359,5 @@ public class Simulation implements ISimulation {
     		System.out.println(evaluatedGames.get(i).getName()+", "+evaluatedGames.get(i).getEvaluateRate());
     	}
     }
-
-
+    
 }
