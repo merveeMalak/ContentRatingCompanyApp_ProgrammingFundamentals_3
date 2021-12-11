@@ -16,9 +16,7 @@ import worker.movie_critic.MovieCritic;
 
 public class Simulation implements ISimulation {
 	
-	public Simulation() {
-
-    }
+	public Simulation() {}
 
     //empty stacks for contents are created
     Stack<IGame> gameStack = new Stack<IGame>();
@@ -31,6 +29,20 @@ public class Simulation implements ISimulation {
     //empty linked lists are created for the evaluated content
     List<IMovie> evaluatedMovies = new LinkedList<>();
     List<IGame> evaluatedGames = new LinkedList<>();
+    
+    //calls needed methods in the needed order to simulate 5 days of the company
+    public void simulateFiveDays() {
+        createCriticQueues();
+        for(int i=1; i<6; i++) {
+        	System.out.println(i + ". day:");
+            updateStacks(i);
+            evaluateMovies();
+            continueEvaluatingGames();
+            evaluateNewGames();
+            printDailyEvaluatedGames();
+            resetShifts();
+        }
+    }
 
     //creates game and movie critics and adds them to related queues
     public void createCriticQueues() {
@@ -58,20 +70,14 @@ public class Simulation implements ISimulation {
         gameCriticQueue.add(gameCritic3);
         gameCriticQueue.add(gameCritic4);
         gameCriticQueue.add(gameCritic5);
-
     }
-
 
     //updates the content stacks for given day
     public void updateStacks(int dayNumber) {
 
         FileIO file = new FileIO();
-
         movieStack = file.getIndexDayOfMovie(dayNumber);
-
         gameStack = file.getIndexOfDayGame(dayNumber);
-
-
     }
 
     //assigns movies at the stack to the critics at the queue
@@ -103,6 +109,52 @@ public class Simulation implements ISimulation {
     //lists of evaluated games and critic id's belonging the day at hand
     List<IGame> dailyEvaluatedGames = new LinkedList<>();
     List<Integer> dailyEvaluatedCritics = new LinkedList<>();
+    
+    //if there are any games to rate and available critics, assigns the games to critics
+    public void evaluateNewGames() {
+    	
+        for (int i=0; i<gameCriticQueue.size();i++) {
+        	
+        	if(!(gameStack.isEmpty())) { //changed
+        		
+        		IGameCritic gameCriticToRate = gameCriticQueue.poll();
+        		IGame gameToRate = gameStack.pop();
+        		
+        		System.out.println(gameCriticToRate.getCriticId()+". game critic works on "+gameToRate.getName());
+        		
+            	switch (gameToRate.getContentId()) {
+            	case 1:
+            		evaluateIndefiniteGame(gameToRate, gameCriticToRate);
+            	case 2:
+            		evaluateStoryGame(gameToRate, gameCriticToRate);
+            	case 3:
+            		evaluateCasualGame(gameToRate, gameCriticToRate);
+        	}
+            	}
+        	else {break;}
+        }
+    }
+    
+    //makes necessary arrangements if the critic has more than enough time for the job at hand
+    private void sufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
+    	
+    	gameCriticToRate.setShift(gameCriticToRate.getShift()-duration);
+		int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
+		gameToRate.setEvaluatedRate(evaluatedRate);
+    }
+    
+    //makes necessary arrangements if the critic has just enough time for the job at hand
+    private void equalCriticShift(IGameCritic gameCriticToRate, IGame gameToRate) {
+    	
+		int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
+		gameToRate.setEvaluatedRate(evaluatedRate);
+    }
+    
+    //makes necessary arrangements if the critic hasn't got enough time for the job at hand
+    private void insufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
+    	
+    	gameCriticToRate.setShift(gameCriticToRate.getShift()-duration);		
+    }
     
     //if evaluation is done, finishes up the necessary steps
     private void organizeEvaluations(boolean evaluationStatus,IGame gameToRate, IGameCritic gameCriticToRate) {
@@ -152,14 +204,13 @@ public class Simulation implements ISimulation {
         		}
         	}
         	else if (gameCriticToRate.getShift() == gameToRate.getDuration()) {	
-        		switch(i) {
-        		case 3:
+        		if (i==3) {
         			equalCriticShift(gameCriticToRate, gameToRate);
         			evaluationStatus=true;
         			isShiftEnded = 1;
-        			break;
+        			break; }
         			
-        		default: 
+        		else { 
         			insufficienCriticShift(gameCriticToRate, gameToRate, (gameToRate.getDuration()*(3-i)));
             		isShiftEnded = 2;
             		break;
@@ -224,61 +275,6 @@ public class Simulation implements ISimulation {
     	organizeEvaluations(evaluationStatus,gameToRate,gameCriticToRate);
     }
 
-    //if there are any games to rate and available critics, assigns the games to critics
-    public void evaluateNewGames() {
-        for (int i=0; i<gameCriticQueue.size();i++) {
-        	
-        	if(!(gameStack.isEmpty())) { //changed
-        		
-        		IGameCritic gameCriticToRate = gameCriticQueue.poll();
-        		IGame gameToRate = gameStack.pop();
-        		
-        		System.out.println(gameCriticToRate.getCriticId()+". game critic works on "+gameToRate.getName());
-        		
-            	switch (gameToRate.getContentId()) {
-            	case 1:
-            		evaluateIndefiniteGame(gameToRate, gameCriticToRate);
-            	case 2:
-            		evaluateStoryGame(gameToRate, gameCriticToRate);
-            	case 3:
-            		evaluateCasualGame(gameToRate, gameCriticToRate);
-        	}
-            	}
-        	else {break;}
-        }
-    }
-    
-    //prints evaluated games of the day and clears the daily lists after
-    public void printDailyEvaluatedGames() {
-
-    	for (int i=0; i<dailyEvaluatedGames.size();i++) {
-    		int criticId = dailyEvaluatedCritics.get(i);
-    		System.out.println(criticId+". game critic evaluated "+dailyEvaluatedGames.get(i).getName());
-    	}
-    	dailyEvaluatedCritics.clear();
-		dailyEvaluatedGames.clear();
-    }
-    
-    //resets shifts of the critics for the new day
-    public void resetShifts() {
-    	
-    	for(int i=0; i<gameCriticsInProgress.size(); i++) {
-    		gameCriticsInProgress.get(i).setShift(gameCriticsInProgress.get(i).getShift()+8);
-    	}
-    	for (int i=0;i<gameCriticsEndedShifts.size();i++) {
-    		gameCriticQueue.add(gameCriticsEndedShifts.get(i));
-    	}
-    	List<IGameCritic> tempGameCritic = new LinkedList<>();
-		while (!(gameCriticQueue.isEmpty())) {
-			tempGameCritic.add(gameCriticQueue.poll());
-		}
-		for (int i = 0; i<tempGameCritic.size();i++) {
-			tempGameCritic.get(i).setShift(8);
-			gameCriticQueue.add(tempGameCritic.get(i));
-		}
-		
-    }
-    
     //makes critics continue their evaluations from where they left of
     public void continueEvaluatingGames() {
     	
@@ -310,41 +306,38 @@ public class Simulation implements ISimulation {
 
     	}
     	
+    }  
+    
+    //prints evaluated games of the day and clears the daily lists after
+    public void printDailyEvaluatedGames() {
+
+    	for (int i=0; i<dailyEvaluatedGames.size();i++) {
+    		int criticId = dailyEvaluatedCritics.get(i);
+    		System.out.println(criticId+". game critic evaluated "+dailyEvaluatedGames.get(i).getName());
+    	}
+    	dailyEvaluatedCritics.clear();
+		dailyEvaluatedGames.clear();
     }
     
-    //makes necessary arrangements if the critic has more than enough time for the job at hand
-    private void sufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
-    	gameCriticToRate.setShift(gameCriticToRate.getShift()-duration);
-		int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
-		gameToRate.setEvaluatedRate(evaluatedRate);
+    //resets shifts of the critics for the new day
+    public void resetShifts() {
+    	
+    	for(int i=0; i<gameCriticsInProgress.size(); i++) {
+    		gameCriticsInProgress.get(i).setShift(gameCriticsInProgress.get(i).getShift()+8);
+    	}
+    	for (int i=0;i<gameCriticsEndedShifts.size();i++) {
+    		gameCriticQueue.add(gameCriticsEndedShifts.get(i));
+    	}
+    	List<IGameCritic> tempGameCritic = new LinkedList<>();
+		while (!(gameCriticQueue.isEmpty())) {
+			tempGameCritic.add(gameCriticQueue.poll());
+		}
+		for (int i = 0; i<tempGameCritic.size();i++) {
+			tempGameCritic.get(i).setShift(8);
+			gameCriticQueue.add(tempGameCritic.get(i));
+		}		
     }
-    
-    //makes necessary arrangements if the critic has just enough time for the job at hand
-    private void equalCriticShift(IGameCritic gameCriticToRate, IGame gameToRate) {
-		int evaluatedRate = gameCriticToRate.rateContent(gameToRate);
-		gameToRate.setEvaluatedRate(evaluatedRate);
-    }
-    
-    //makes necessary arrangements if the critic hasn't got enough time for the job at hand
-    private void insufficienCriticShift(IGameCritic gameCriticToRate, IGame gameToRate, int duration) {
-    	gameCriticToRate.setShift(gameCriticToRate.getShift()-duration);
-		
-    }
-    
-    //calls needed methods in the needed order to simulate 5 days of the company
-    public void simulateFiveDays() {
-        createCriticQueues();
-        for(int i=1; i<6; i++) {
-        	System.out.println(i + ". day:");
-            updateStacks(i);
-            evaluateMovies();
-            continueEvaluatingGames();
-            evaluateNewGames();
-            printDailyEvaluatedGames();
-            resetShifts();
-        }
-    }
-    
+        
 	//prints evaluated movies,games and their ratings
     public void printRatings() {
     	System.out.println("Ratings:");
@@ -352,6 +345,7 @@ public class Simulation implements ISimulation {
     	printGameRatings();
     }
     
+    //prints evaluated movies, their year and evaluated ratings
     private void printMovieRatings() {
     	for(int i=0; i<evaluatedMovies.size(); i++) {
     		Movie movie = (Movie) evaluatedMovies.get(i);
@@ -359,6 +353,7 @@ public class Simulation implements ISimulation {
     	}
     }
     
+    //prints evaluated games and their ratings
     private void printGameRatings() {
     	for(int i=0; i<evaluatedGames.size(); i++) {
     		System.out.println(evaluatedGames.get(i).getName()+", "+evaluatedGames.get(i).getEvaluateRate());
