@@ -9,7 +9,8 @@ public interface IMovie  extends IContent {
      */
     public double calculateCritic(double criticOption);
 
-
+    public int getYear();
+	
     void setEvaluatedRate(double evaluatedRate);
 
     public double getEvaluateRate();
