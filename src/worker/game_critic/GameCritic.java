@@ -53,7 +53,7 @@ public class GameCritic extends Worker implements IGameCritic{
 	    }
 
 	    public int rateContent(Game game) {
-	        return (int)(game.calculateCritic(this.opinion));
+	        return game.calculateCritic(getOpinion());
 
 	    }
 

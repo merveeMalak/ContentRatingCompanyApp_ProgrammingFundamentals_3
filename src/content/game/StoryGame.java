@@ -25,8 +25,8 @@ public class StoryGame extends Game {
 
 
     @Override
-    public int calculateCritic(int criticOption) {
-        return (int) (getAverageRating() + (getDuration() * 0.25)  + criticOption);
+    public int calculateCritic(int criticOpinion) {
+        return (int) (getAverageRating() + (getDuration() * 0.25)  + criticOpinion);
     }
 
     @Override

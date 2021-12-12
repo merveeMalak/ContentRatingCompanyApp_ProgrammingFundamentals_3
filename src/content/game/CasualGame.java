@@ -25,8 +25,8 @@ public class CasualGame extends Game {
 
 
     @Override
-    public int calculateCritic(int criticOption) {
-        return (int) (getAverageRating() + ((getDuration() - 3) * 3) + criticOption);
+    public int calculateCritic(int criticOpinion) {
+        return (int) (getAverageRating() + ((getDuration() - 3) * 3) + criticOpinion);
     }
 
 

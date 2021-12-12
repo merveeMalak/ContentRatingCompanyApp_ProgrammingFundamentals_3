@@ -25,8 +25,8 @@ public class IndefiniteGame extends Game {
 
 
     @Override
-    public int calculateCritic(int criticOption) {
-        return (int) (getAverageRating() + ((10 - getDuration()) * 0.25)  + criticOption);
+    public int calculateCritic(int criticOpinion) {
+        return (int) (getAverageRating() + ((10 - getDuration()) * 0.25)  + criticOpinion);
     }
 
     @Override
