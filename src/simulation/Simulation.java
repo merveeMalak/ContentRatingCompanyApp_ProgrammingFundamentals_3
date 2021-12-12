@@ -316,7 +316,7 @@ public class Simulation implements ISimulation {
     
     private void printMovieRatings() {
         for (IMovie movie : evaluatedMovies) {
-            System.out.println(movie.getName() + " (" + movie.getYear() + "), " + movie.getEvaluateRate());
+            System.out.println(movie.getName() + " (" + movie.getYear() + "), " +String.format("%,.2f", movie.getEvaluateRate()) );
         }
     }
     
