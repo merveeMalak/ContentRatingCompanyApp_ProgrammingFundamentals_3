@@ -1,5 +1,6 @@
 package simulation;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -16,25 +17,58 @@ import worker.movie_critic.MovieCritic;
 
 public class Simulation implements ISimulation {
 	
-	public Simulation() {}
+	public Simulation() {
+		createQueuesAndStacks();
+	}
 
-    //empty stacks for contents are created
-    Stack<IGame> gameStack = new Stack<IGame>();
-    Stack<IMovie> movieStack = new Stack<IMovie>();
+	//empty stacks for contents are created
+    private Stack<IGame> gameStack;
+    private Stack<IMovie> movieStack;
 
     //empty queues for critics are created
-    Queue<IGameCritic> gameCriticQueue = new LinkedList<>();
-    Queue<IMovieCritic> movieCriticQueue = new LinkedList<>();
+    private Queue<IGameCritic> gameCriticQueue;
+    private Queue<IMovieCritic> movieCriticQueue;
 
     //empty linked lists are created for the evaluated content
-    List<IMovie> evaluatedMovies = new LinkedList<>();
-    List<IGame> evaluatedGames = new LinkedList<>();
+    private ArrayList<IMovie> evaluatedMovies;
+    private ArrayList<IGame> evaluatedGames;
+    
+    //lists for unfinished evaluations: critics who will continue the other day and the games they are evaluating
+    private ArrayList<IGameCritic> gameCriticsInProgress;
+    private ArrayList<IGame> gamesInProgress;
+
+    //list of critics who reached the maximum number of hours to work
+    private ArrayList<IGameCritic> gameCriticsEndedShifts;
+
+    //lists of evaluated games and critic id's belonging the day at hand
+    private ArrayList<IGame> dailyEvaluatedGames;
+    private ArrayList<Integer> dailyEvaluatedCritics;
+    
+    //creates all required queues and stacks
+    public void createQueuesAndStacks(){
+        gameStack = new Stack<IGame>();
+        movieStack = new Stack<IMovie>();
+        gameCriticQueue = new LinkedList<IGameCritic>();
+        movieCriticQueue = new LinkedList<IMovieCritic>();
+        evaluatedMovies = new ArrayList<IMovie>();
+        evaluatedGames = new ArrayList<IGame>();
+        gameCriticsInProgress = new ArrayList<IGameCritic>();
+        gamesInProgress = new ArrayList<IGame>();
+        gameCriticsEndedShifts = new ArrayList<IGameCritic>();
+        dailyEvaluatedGames = new ArrayList<IGame>();
+        dailyEvaluatedCritics = new ArrayList<Integer>();
+        createCriticQueues();
+    }
+    
+    public void simulateFiveDays(){
+        evaluateFiveDays();
+        printRatings();
+    }
     
     //calls needed methods in the needed order to simulate 5 days of the company
-    public void simulateFiveDays() {
-        createCriticQueues();
+    private void evaluateFiveDays() {
         for(int i=1; i<6; i++) {
-        	System.out.println(i + ". day:");
+            System.out.println(i + ". day:");
             updateStacks(i);
             evaluateMovies();
             continueEvaluatingGames();
@@ -78,9 +112,6 @@ public class Simulation implements ISimulation {
         FileIO file = new FileIO();
         movieStack = file.getIndexDayOfMovie(dayNumber);
         gameStack = file.getIndexOfDayGame(dayNumber);
-        for (int x=0; x<gameStack.size();x++) {
-        	System.out.println(gameStack.get(x).getName());
-        }
         
     }
 
@@ -103,16 +134,7 @@ public class Simulation implements ISimulation {
         }
     }
     
-    //lists for unfinished evaluations: critics who will continue the other day and the games they are evaluating
-    Queue<IGameCritic> gameCriticsInProgress = new LinkedList<>();
-    List<IGame> gamesInProgress = new LinkedList<>();
     
-    //list of critics who reached the maximum number of hours to work
-    List<IGameCritic> gameCriticsEndedShifts = new LinkedList<>();
-    
-    //lists of evaluated games and critic id's belonging the day at hand
-    List<IGame> dailyEvaluatedGames = new LinkedList<>();
-    List<Integer> dailyEvaluatedCritics = new LinkedList<>();
     
     //if there are any games to rate and available critics, assigns the games to critics
     public void evaluateNewGames() {
@@ -213,10 +235,12 @@ public class Simulation implements ISimulation {
     		List<IGame> tempGamesInProgress = gamesInProgress;
     		gamesInProgress.clear();
     		
+    		int criticNumber = 0;
     		for (IGame game: tempGamesInProgress) {
-        		
+        				
         		IGame gameToContinue = game;
-        		IGameCritic criticToContinue = gameCriticsInProgress.poll();
+        		IGameCritic criticToContinue = gameCriticsInProgress.get(criticNumber);
+        		criticNumber++;
         		
         		System.out.println(criticToContinue.getCriticId()+". game critic works on "+gameToContinue.getName());
         		
@@ -259,9 +283,10 @@ public class Simulation implements ISimulation {
     //resets shifts of the critics for the new day
     public void resetShifts() {
     	
-    	Queue<IGameCritic> tempGameCritics = new LinkedList<>();
+    	ArrayList<IGameCritic> tempGameCritics = new ArrayList<>();
+    	
     	for(int i=0; i<gameCriticsInProgress.size(); i++) {   		
-    		IGameCritic gameCritic = gameCriticsInProgress.poll();
+    		IGameCritic gameCritic = gameCriticsInProgress.get(i);
     		gameCritic.setShift(gameCritic.getShift()+8);
     		tempGameCritics.add(gameCritic);
     	}
@@ -283,18 +308,16 @@ public class Simulation implements ISimulation {
     }
         
 	//prints evaluated movies,games and their ratings
-    public void printRatings() {
-    	System.out.println("Ratings:");
-    	printMovieRatings();
-    	printGameRatings();
+    private void printRatings() {
+        System.out.println("Ratings:");
+        printMovieRatings();
+        printGameRatings();
     }
     
-    //prints evaluated movies, their year and evaluated ratings
     private void printMovieRatings() {
-    	for(int i=0; i<evaluatedMovies.size(); i++) {
-    		Movie movie = (Movie) evaluatedMovies.get(i);
-    		System.out.println(movie.getName()+" ("+movie.getYear()+"), "+String.format("%,.2f", movie.getEvaluateRate()));
-    	}
+        for (IMovie movie : evaluatedMovies) {
+            System.out.println(movie.getName() + " (" + movie.getYear() + "), " + movie.getEvaluateRate());
+        }
     }
     
     //prints evaluated games and their ratings

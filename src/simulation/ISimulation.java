@@ -6,7 +6,7 @@ public interface ISimulation {
 	void simulateFiveDays();
 		
 	//creates game and movie critics and adds them to related queues
-	void createCriticQueues();
+    void createQueuesAndStacks();
 	
 	//updates the content stacks for given day
 	void updateStacks(int dayNumber);
@@ -26,10 +26,5 @@ public interface ISimulation {
 	
 	//resets shifts of the critics for the new day
 	void resetShifts();
-	
-	//prints evaluated movies,games and their ratings
-	void printRatings();
 
-	
-	
 }
