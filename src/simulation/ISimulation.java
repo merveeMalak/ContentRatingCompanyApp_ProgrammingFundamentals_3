@@ -1,6 +1,5 @@
 package simulation;
 
-
 public interface ISimulation {
 
     //calls needed methods in the needed order to simulate 5 days of the company
@@ -15,7 +14,7 @@ public interface ISimulation {
     //assigns movies at the stack to the critics at the queue
     //critics evaluates the movies
     void evaluateMovies();
-    
+
     //if there are any games to rate and available critics, assigns the games to critics
     public void evaluateNewGames();
 }

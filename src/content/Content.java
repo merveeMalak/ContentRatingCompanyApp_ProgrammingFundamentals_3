@@ -47,22 +47,6 @@ public abstract class Content implements IContent {
         return "*Arrival Day: " + getArrivalDay() + " *Content Id: " + getContentId() + " *Name: " + getName();
     }
 
-    /*
-    public boolean equals(Object other){
-        if (other == null){
-            return false;
-        }
-        else if (getClass() != other.getClass()){
-            return false;
-        }
-        else {
-            Content otherContent = (Content) other;
-            return ((this.arrivalDay == otherContent.arrivalDay) &&
-                    (this.contentId == otherContent.contentId) &&
-                    (this.name.equals(otherContent.name)) &&
-                    (this.duration == otherContent.duration) &&
-                    (this.averageRating == otherContent.averageRating));}
-    }
-*/
+   
 
 }
