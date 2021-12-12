@@ -93,7 +93,6 @@ public class FileIO {
 	        return gameStack;
 	    }
 	    private List<IGame> getGameArrayList() {
-	        readFile();
 	        return gameArrayList;
 	    }
 
